@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HojaLista — Crea tu hoja de vida gratis en minutos</title>
+<meta name="description" content="Crea tu hoja de vida profesional gratis. Elige una plantilla, llena tus datos y descarga tu CV en PDF en minutos. Sin registro, sin marca de agua.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <div class="brand">Hoja<span>Lista</span></div>
+    <nav class="site-nav">
+      <a href="#crear">Crear mi CV</a>
+      <a href="#plantillas">Plantillas</a>
+      <a href="blog.html">Blog</a>
+      <!-- Desactivados por ahora: quitar hidden cuando se quieran mostrar de nuevo -->
+      <button type="button" class="nav-btn" id="open-sugerencias" hidden>Sugerencias</button>
+      <button type="button" class="nav-btn" id="open-contacto" hidden>Contacto</button>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap hero-inner">
+    <p class="eyebrow">Gratis · Sin registro · Descarga en PDF</p>
+    <h1>Tu hoja de vida, lista en minutos.</h1>
+    <p class="hero-sub">Llena un formulario sencillo, elige una plantilla y descarga tu CV profesional. Ideal si estás buscando tu primer empleo o necesitas actualizar tu hoja de vida rápido.</p>
+    <a href="#crear" class="btn btn-primary">Empezar a crear mi CV</a>
+  </div>
+</section>
+
+<div class="ad-slot ad-slot-banner wrap">
+  <!-- Espacio reservado para anuncio: banner horizontal debajo del hero -->
+  <span class="ad-label">Espacio publicitario</span>
+</div>
+
+<section id="crear" class="builder">
+  <div class="wrap">
+    <h2 class="section-title">Completa tus datos</h2>
+
+    <div id="template-switch" class="template-switch">
+      <button class="tmpl-btn active" data-template="clasica">Clásica</button>
+      <button class="tmpl-btn" data-template="moderna">Moderna</button>
+      <button class="tmpl-btn" data-template="ejecutiva">Ejecutiva</button>
+      <button class="tmpl-btn" data-template="minimalista">Minimalista</button>
+      <button class="tmpl-btn" data-template="compacta">Compacta</button>
+      <button class="tmpl-btn" data-template="creativa">Creativa</button>
+    </div>
+
+    <div class="builder-grid">
+
+      <!-- FORMULARIO -->
+      <form id="cv-form" class="cv-form" autocomplete="off">
+
+        <fieldset>
+          <legend>Datos personales</legend>
+
+          <div class="photo-field">
+            <div class="photo-preview-mini" id="photo-preview-mini">Sin foto</div>
+            <div class="photo-controls">
+              <label class="photo-upload-btn">
+                Subir foto
+                <input type="file" id="f-foto" accept="image/*" hidden>
+              </label>
+              <button type="button" id="remove-foto" class="photo-remove-btn" hidden>Quitar foto</button>
+
+              <label class="photo-toggle">
+                <input type="checkbox" id="f-mostrar-foto" checked disabled>
+                Incluir foto en la hoja de vida
+              </label>
+
+              <p class="photo-hint">Opcional. Si vas a aplicar por sistemas ATS o portales automatizados, algunas empresas prefieren el CV sin foto — puedes subirla y desmarcar la casilla cuando la necesites ocultar.</p>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <label>Nombre completo
+              <input type="text" id="f-nombre" placeholder="María Fernanda Rojas">
+            </label>
+            <label>Cargo al que aspiras (opcional)
+              <input type="text" id="f-cargo" placeholder="Ej: Auxiliar Administrativo">
+            </label>
+          </div>
+          <div class="field-row">
+            <label>Correo
+              <input type="email" id="f-correo" placeholder="nombre.apellido@correo.com">
+            </label>
+            <label>Teléfono
+              <input type="text" id="f-telefono" placeholder="+57 300 123 4567">
+            </label>
+          </div>
+          <div class="field-row">
+            <label>Ciudad
+              <input type="text" id="f-ciudad" placeholder="Ibagué, Tolima">
+            </label>
+            <label>LinkedIn / Portafolio (opcional)
+              <input type="text" id="f-linkedin" placeholder="linkedin.com/in/tu-nombre">
+            </label>
+          </div>
+          <label>Perfil profesional (resumen breve)
+            <textarea id="f-resumen" rows="3" placeholder="Ej: Profesional con experiencia en atención al cliente y procesos administrativos, con disposición para el trabajo en equipo y aprendizaje continuo..."></textarea>
+          </label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Experiencia laboral</legend>
+          <div id="exp-list"></div>
+          <button type="button" class="btn-add" data-add="exp">+ Agregar experiencia</button>
+        </fieldset>
+
+        <fieldset>
+          <legend>Educación</legend>
+          <div id="edu-list"></div>
+          <button type="button" class="btn-add" data-add="edu">+ Agregar formación</button>
+        </fieldset>
+
+        <fieldset>
+          <legend>Habilidades</legend>
+          <label>Escribe tus habilidades separadas por coma
+            <input type="text" id="f-habilidades" placeholder="Ej: Atención al cliente, Trabajo en equipo, Excel, Manejo de caja">
+          </label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Idiomas</legend>
+          <label>Escribe tus idiomas separados por coma (opcional)
+            <input type="text" id="f-idiomas" placeholder="Ej: Inglés - Intermedio, Portugués - Básico">
+          </label>
+        </fieldset>
+
+        <div class="form-actions">
+          <button type="button" id="reset-btn" class="btn-reset">Empezar de cero</button>
+          <button type="button" id="download-btn" class="btn btn-primary btn-download">Descargar mi CV en PDF</button>
+        </div>
+        <p id="autosave-note" class="autosave-note">Tus datos se guardan automáticamente en este navegador.</p>
+      </form>
+
+      <!-- VISTA PREVIA -->
+      <div class="preview-stage">
+        <div id="cv-preview" class="cv-sheet template-clasica">
+          <!-- Contenido generado por script.js -->
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div class="ad-slot ad-slot-inline wrap">
+  <!-- Espacio reservado para anuncio: entre el constructor y las plantillas -->
+  <span class="ad-label">Espacio publicitario</span>
+</div>
+
+<section id="plantillas" class="templates-info">
+  <div class="wrap">
+    <h2 class="section-title">Tres estilos, un mismo objetivo: que te llamen a entrevista</h2>
+    <div class="templates-grid">
+      <div class="tmpl-card">
+        <h3>Clásica</h3>
+        <p>Formato de una sola columna, compatible con los sistemas de selección automática (ATS) que usan muchas empresas. La opción más segura.</p>
+      </div>
+      <div class="tmpl-card">
+        <h3>Moderna</h3>
+        <p>Barra lateral con tus datos de contacto y habilidades, contenido principal despejado. Buen equilibrio entre diseño y claridad.</p>
+      </div>
+      <div class="tmpl-card">
+        <h3>Ejecutiva</h3>
+        <p>Encabezado centrado con líneas divisorias en dorado. Ideal para perfiles de coordinación, administración o cargos de mayor jerarquía.</p>
+      </div>
+      <div class="tmpl-card">
+        <h3>Minimalista</h3>
+        <p>Diseño limpio, sin bordes ni colores fuertes, mucho espacio en blanco. Perfecto si prefieres algo sobrio y directo al punto.</p>
+      </div>
+      <div class="tmpl-card">
+        <h3>Compacta</h3>
+        <p>Aprovecha mejor el espacio en dos columnas. Ideal si tienes bastante experiencia o formación y necesitas que todo quepa en una sola hoja.</p>
+      </div>
+      <div class="tmpl-card">
+        <h3>Creativa</h3>
+        <p>Encabezado a color con tu foto destacada y etiquetas visuales para tus habilidades. Buena opción para perfiles de atención al público, ventas o áreas creativas.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="wrap footer-links">
+    <p>HojaLista — Crea tu hoja de vida gratis. Ninguno de tus datos se guarda en un servidor: todo se genera en tu navegador.</p>
+    <div>
+      <a href="privacidad.html">Política de privacidad</a>
+      <a href="blog.html">Blog</a>
+    </div>
+  </div>
+</footer>
+
+<!-- Modal: Sugerencias -->
+<div class="modal-overlay" id="modal-sugerencias" hidden>
+  <div class="modal-box">
+    <button type="button" class="modal-close" data-close-modal>&times;</button>
+    <h3>Sugerencias</h3>
+    <p class="modal-sub">¿Algo que deberíamos mejorar o agregar? Escríbelo abajo. Este formulario es completamente anónimo — no pedimos tu nombre ni correo.</p>
+    <form id="form-sugerencias" action="https://formspree.io/f/TU_ID_DE_FORMSPREE" method="POST">
+      <input type="hidden" name="_subject" value="Nueva sugerencia — HojaLista">
+      <input type="text" name="_gotcha" style="display:none">
+      <label>Tu sugerencia
+        <textarea name="mensaje" rows="4" required placeholder="Ej: Sería útil agregar un campo para idiomas..."></textarea>
+      </label>
+      <button type="submit" class="btn btn-primary modal-submit">Enviar sugerencia</button>
+      <p class="modal-status" data-status hidden></p>
+    </form>
+  </div>
+</div>
+
+<!-- Modal: Contacto -->
+<div class="modal-overlay" id="modal-contacto" hidden>
+  <div class="modal-box">
+    <button type="button" class="modal-close" data-close-modal>&times;</button>
+    <h3>Contacto</h3>
+    <p class="modal-sub">Soy desarrollador junior full stack. Si necesitas una página web, una herramienta a la medida o algo parecido a HojaLista, déjame tu correo y un breve detalle de lo que necesitas — te contacto pronto. Tu correo solo se usa para responderte, nunca se comparte ni se usa para otra cosa.</p>
+    <form id="form-contacto" action="https://formspree.io/f/TU_ID_DE_FORMSPREE" method="POST">
+      <input type="hidden" name="_subject" value="Nuevo contacto — HojaLista">
+      <input type="text" name="_gotcha" style="display:none">
+      <label>Tu correo
+        <input type="email" name="correo" required placeholder="tucorreo@ejemplo.com">
+      </label>
+      <label>¿Qué necesitas?
+        <textarea name="mensaje" rows="4" required placeholder="Ej: Necesito una página para mi negocio de..."></textarea>
+      </label>
+      <button type="submit" class="btn btn-primary modal-submit">Enviar mensaje</button>
+      <p class="modal-status" data-status hidden></p>
+    </form>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
