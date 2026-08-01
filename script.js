@@ -3,6 +3,8 @@ let currentTemplate = 'clasica';
 let expCount = 0;
 let eduCount = 0;
 let fotoDataUrl = null;
+let fotoPosX = 50;
+let fotoPosY = 50;
 
 const el = (id) => document.getElementById(id);
 
@@ -84,6 +86,9 @@ function setupPhotoUpload(){
   const miniPreview = el('photo-preview-mini');
   const removeBtn = el('remove-foto');
   const toggle = el('f-mostrar-foto');
+  const posBox = el('photo-position');
+  const posX = el('f-foto-x');
+  const posY = el('f-foto-y');
 
   input.addEventListener('change', () => {
     const file = input.files[0];
@@ -98,10 +103,15 @@ function setupPhotoUpload(){
     const reader = new FileReader();
     reader.onload = (e) => {
       fotoDataUrl = e.target.result;
+      fotoPosX = 50;
+      fotoPosY = 50;
+      posX.value = 50;
+      posY.value = 50;
       miniPreview.innerHTML = `<img src="${fotoDataUrl}" alt="Foto de perfil">`;
       removeBtn.hidden = false;
       toggle.disabled = false;
       toggle.checked = true;
+      posBox.hidden = false;
       renderPreview();
     };
     reader.readAsDataURL(file);
@@ -114,10 +124,14 @@ function setupPhotoUpload(){
     removeBtn.hidden = true;
     toggle.checked = true;
     toggle.disabled = true;
+    posBox.hidden = true;
     renderPreview();
   });
 
   toggle.addEventListener('change', renderPreview);
+
+  posX.addEventListener('input', () => { fotoPosX = Number(posX.value); renderPreview(); });
+  posY.addEventListener('input', () => { fotoPosY = Number(posY.value); renderPreview(); });
 }
 
 // ---------- Persistencia (localStorage) ----------
@@ -168,6 +182,15 @@ function restoreFromState(saved){
     el('remove-foto').hidden = false;
     el('f-mostrar-foto').disabled = false;
     el('f-mostrar-foto').checked = saved.mostrarFoto !== false;
+
+    el('photo-position').hidden = false;
+    if(saved.fotoPos){
+      const [px, py] = saved.fotoPos.replace(/%/g, '').split(' ').map(Number);
+      fotoPosX = isNaN(px) ? 50 : px;
+      fotoPosY = isNaN(py) ? 50 : py;
+      el('f-foto-x').value = fotoPosX;
+      el('f-foto-y').value = fotoPosY;
+    }
   }
 
   if(saved.template){
@@ -221,7 +244,8 @@ function collectData(){
     educaciones,
     habilidades,
     idiomas,
-    foto: (el('f-mostrar-foto').checked ? fotoDataUrl : null)
+    foto: (el('f-mostrar-foto').checked ? fotoDataUrl : null),
+    fotoPos: `${fotoPosX}% ${fotoPosY}%`
   };
 }
 
@@ -239,7 +263,7 @@ function renderClasica(d){
         ${d.cargo ? `<p class="cv-h-cargo">${d.cargo}</p>` : ""}
         <p class="cv-contact">${contactLine(d, '·')}</p>
       </div>
-      ${d.foto ? `<img class="cv-photo" src="${d.foto}" alt="Foto de ${d.nombre}">` : ''}
+      ${d.foto ? `<img class="cv-photo" src="${d.foto}" alt="Foto de ${d.nombre}" style="object-position: ${d.fotoPos}">` : ''}
     </div>
     ${d.resumen ? `<div class="cv-section"><h4>Perfil</h4><p>${d.resumen}</p></div>` : ''}
     ${d.experiencias.length ? `<div class="cv-section"><h4>Experiencia</h4>
@@ -271,7 +295,7 @@ function renderClasica(d){
 function renderModerna(d){
   return `
     <div class="cv-sidebar">
-      ${d.foto ? `<img class="cv-photo" src="${d.foto}" alt="Foto de ${d.nombre}">` : ''}
+      ${d.foto ? `<img class="cv-photo" src="${d.foto}" alt="Foto de ${d.nombre}" style="object-position: ${d.fotoPos}">` : ''}
       <h2 class="cv-h-nombre">${d.nombre}</h2>
       ${d.cargo ? `<p class="cv-h-cargo">${d.cargo}</p>` : ""}
       <div class="cv-contact">
@@ -303,7 +327,7 @@ function renderModerna(d){
 
 function renderEjecutiva(d){
   return `
-    ${d.foto ? `<img class="cv-photo" src="${d.foto}" alt="Foto de ${d.nombre}">` : ''}
+    ${d.foto ? `<img class="cv-photo" src="${d.foto}" alt="Foto de ${d.nombre}" style="object-position: ${d.fotoPos}">` : ''}
     <h1 class="cv-h-nombre">${d.nombre}</h1>
     ${d.cargo ? `<p class="cv-h-cargo">${d.cargo}</p>` : ""}
     <p class="cv-contact">${contactLine(d, '·')}</p>
@@ -366,7 +390,7 @@ function renderMinimalista(d){
 function renderCompacta(d){
   return `
     <div class="cv-col-left">
-      ${d.foto ? `<img class="cv-photo" src="${d.foto}" alt="Foto de ${d.nombre}">` : ''}
+      ${d.foto ? `<img class="cv-photo" src="${d.foto}" alt="Foto de ${d.nombre}" style="object-position: ${d.fotoPos}">` : ''}
       <h1 class="cv-h-nombre">${d.nombre}</h1>
       ${d.cargo ? `<p class="cv-h-cargo">${d.cargo}</p>` : ""}
       <div class="cv-contact">
@@ -399,7 +423,7 @@ function renderCompacta(d){
 function renderCreativa(d){
   return `
     <div class="cv-band">
-      ${d.foto ? `<img class="cv-photo" src="${d.foto}" alt="Foto de ${d.nombre}">` : ''}
+      ${d.foto ? `<img class="cv-photo" src="${d.foto}" alt="Foto de ${d.nombre}" style="object-position: ${d.fotoPos}">` : ''}
       <div>
         <h1 class="cv-h-nombre">${d.nombre}</h1>
         ${d.cargo ? `<p class="cv-h-cargo">${d.cargo}</p>` : ""}
@@ -466,20 +490,48 @@ async function downloadPDF(){
   btn.disabled = true;
 
   const sheet = el('cv-preview');
+
+  // Quitamos temporalmente la altura fija y el recorte, para que se vea
+  // y se capture TODO el contenido real, sin importar cuánto ocupe.
+  sheet.classList.add('exporting');
+
   try{
     const canvas = await html2canvas(sheet, { scale: 3, useCORS: true });
     const imgData = canvas.toDataURL('image/png');
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF('p', 'mm', 'a4');
+
     const pageWidth = 210;
     const pageHeight = 297;
-    pdf.addImage(imgData, 'PNG', 0, 0, pageWidth, pageHeight);
+    const imgWidth = pageWidth;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    if(imgHeight <= pageHeight){
+      // Cabe en una sola página
+      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+    }else{
+      // No cabe: la repartimos en varias páginas A4
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      while(heightLeft > 0){
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+    }
+
     const nombre = (el('f-nombre').value || 'hoja-de-vida').trim().replace(/\s+/g, '-').toLowerCase();
     pdf.save(`cv-${nombre}.pdf`);
   }catch(err){
     console.error('Error generando el PDF:', err);
     alert('Hubo un problema generando el PDF. Intenta de nuevo.');
   }finally{
+    sheet.classList.remove('exporting');
     btn.textContent = originalText;
     btn.disabled = false;
   }
@@ -580,6 +632,10 @@ document.addEventListener('DOMContentLoaded', () => {
   el('reset-btn').addEventListener('click', resetAll);
 
   setupPhotoUpload();
+  setupTemplateSwitch();
+  setupModals();
+  renderPreview();
+});
   setupTemplateSwitch();
   setupModals();
   renderPreview();
