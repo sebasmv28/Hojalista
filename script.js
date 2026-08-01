@@ -506,7 +506,8 @@ async function downloadPDF(){
 
     const pageWidthMM = 210;
     const pageHeightMM = 297;
-    const marginMM = 12;
+    const plantillasSinMargen = ['creativa', 'compacta', 'moderna'];
+    const marginMM = plantillasSinMargen.includes(currentTemplate) ? 0 : 12;
     const contentWidthMM = pageWidthMM - (marginMM * 2);
     const mmPerPx = contentWidthMM / canvas.width;
     const pageHeightPx = (pageHeightMM - (marginMM * 2)) / mmPerPx;
