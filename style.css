@@ -1,4 +1,5 @@
 :root{
+  color-scheme: light only;
   --ink: #1B2A4A;
   --ink-soft: #2E3E63;
   --paper: #F6F3EA;
@@ -230,16 +231,13 @@ a{color:inherit;}
   background:var(--paper-white);
   box-shadow:var(--shadow);
   width:100%;
-  aspect-ratio:210/297;
+  min-height:400px;
   padding:34px 38px;
-  overflow-y:auto;
   font-size:.82rem;
   color:var(--ink);
 }
 .cv-sheet.exporting{
-  aspect-ratio:auto;
-  height:auto;
-  overflow:visible;
+  padding:34px 38px;
 }
 
 /* --- Plantilla Clásica --- */
@@ -459,10 +457,6 @@ a{color:inherit;}
   .template-compacta .cv-col-left{border-right:none; border-bottom:1px solid var(--line);}
   .template-creativa .cv-body{grid-template-columns:1fr;}
   .template-creativa .cv-band{flex-direction:column; text-align:center; gap:10px;}
-}
-
-@media (prefers-reduced-motion: reduce){
-  html{scroll-behavior:auto;}
 }
 
 @media (prefers-reduced-motion: reduce){
