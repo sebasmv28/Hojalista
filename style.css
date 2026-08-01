@@ -187,6 +187,14 @@ a{color:inherit;}
 .photo-toggle input{width:auto; margin:0; accent-color:var(--gold); cursor:pointer;}
 .photo-toggle input:disabled{cursor:not-allowed; opacity:.5;}
 
+.photo-position{margin-top:12px; padding-top:12px; border-top:1px solid var(--line);}
+.photo-position-label{
+  display:block; font-size:.76rem; color:var(--slate); font-weight:500; margin-bottom:8px;
+}
+.photo-position-label input[type="range"]{
+  width:100%; margin-top:4px; accent-color:var(--gold); cursor:pointer;
+}
+
 .entry-block{
   border:1px solid var(--line); border-radius:var(--radius); padding:16px;
   margin-bottom:14px; background:var(--paper-white); position:relative;
@@ -227,6 +235,11 @@ a{color:inherit;}
   overflow-y:auto;
   font-size:.82rem;
   color:var(--ink);
+}
+.cv-sheet.exporting{
+  aspect-ratio:auto;
+  height:auto;
+  overflow:visible;
 }
 
 /* --- Plantilla Clásica --- */
@@ -446,6 +459,10 @@ a{color:inherit;}
   .template-compacta .cv-col-left{border-right:none; border-bottom:1px solid var(--line);}
   .template-creativa .cv-body{grid-template-columns:1fr;}
   .template-creativa .cv-band{flex-direction:column; text-align:center; gap:10px;}
+}
+
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto;}
 }
 
 @media (prefers-reduced-motion: reduce){
