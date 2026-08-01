@@ -506,8 +506,10 @@ async function downloadPDF(){
 
     const pageWidthMM = 210;
     const pageHeightMM = 297;
-    const mmPerPx = pageWidthMM / canvas.width;
-    const pageHeightPx = pageHeightMM / mmPerPx;
+    const marginMM = 12;
+    const contentWidthMM = pageWidthMM - (marginMM * 2);
+    const mmPerPx = contentWidthMM / canvas.width;
+    const pageHeightPx = (pageHeightMM - (marginMM * 2)) / mmPerPx;
 
     // Convertimos la posición de cada elemento protegido a coordenadas del canvas
     const scaleFactor = canvas.width / sheetRect.width;
@@ -548,7 +550,7 @@ async function downloadPDF(){
       const sliceHeightMM = sliceHeight * mmPerPx;
 
       if(!firstPage) pdf.addPage();
-      pdf.addImage(sliceImg, 'PNG', 0, 0, pageWidthMM, sliceHeightMM);
+      pdf.addImage(sliceImg, 'PNG', marginMM, marginMM, contentWidthMM, sliceHeightMM);
       firstPage = false;
 
       currentY += sliceHeight;
