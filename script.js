@@ -636,7 +636,3 @@ document.addEventListener('DOMContentLoaded', () => {
   setupModals();
   renderPreview();
 });
-  setupTemplateSwitch();
-  setupModals();
-  renderPreview();
-});
