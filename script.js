@@ -490,39 +490,68 @@ async function downloadPDF(){
   btn.disabled = true;
 
   const sheet = el('cv-preview');
-
-  // Quitamos temporalmente la altura fija y el recorte, para que se vea
-  // y se capture TODO el contenido real, sin importar cuánto ocupe.
   sheet.classList.add('exporting');
 
   try{
+    const sheetRect = sheet.getBoundingClientRect();
+
+    // Elementos que NO queremos que queden partidos entre dos páginas
+    const protegidos = [...sheet.querySelectorAll(
+      '.cv-item, .cv-skills, .cv-header-row, .cv-band, .gold-rule'
+    )];
+
     const canvas = await html2canvas(sheet, { scale: 3, useCORS: true });
-    const imgData = canvas.toDataURL('image/png');
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF('p', 'mm', 'a4');
 
-    const pageWidth = 210;
-    const pageHeight = 297;
-    const imgWidth = pageWidth;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    const pageWidthMM = 210;
+    const pageHeightMM = 297;
+    const mmPerPx = pageWidthMM / canvas.width;
+    const pageHeightPx = pageHeightMM / mmPerPx;
 
-    if(imgHeight <= pageHeight){
-      // Cabe en una sola página
-      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-    }else{
-      // No cabe: la repartimos en varias páginas A4
-      let heightLeft = imgHeight;
-      let position = 0;
+    // Convertimos la posición de cada elemento protegido a coordenadas del canvas
+    const scaleFactor = canvas.width / sheetRect.width;
+    const bloques = protegidos.map(node => {
+      const r = node.getBoundingClientRect();
+      const top = (r.top - sheetRect.top) * scaleFactor;
+      const bottom = top + r.height * scaleFactor;
+      return { top, bottom };
+    });
 
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
+    let currentY = 0;
+    let firstPage = true;
 
-      while(heightLeft > 0){
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
+    while(currentY < canvas.height - 1){
+      let boundary = Math.min(currentY + pageHeightPx, canvas.height);
+
+      // ¿Algún bloque queda partido justo en este corte? Si sí, subimos el corte
+      // hasta justo antes de donde empieza ese bloque.
+      const partidos = bloques.filter(b => b.top < boundary - 1 && b.bottom > boundary + 1 && b.top >= currentY);
+      if(partidos.length){
+        const nuevoLimite = Math.min(...partidos.map(b => b.top));
+        // Evitamos páginas vacías si un bloque es más alto que una página completa
+        if(nuevoLimite > currentY + 40){
+          boundary = nuevoLimite;
+        }
       }
+
+      const sliceHeight = Math.round(boundary - currentY);
+      if(sliceHeight <= 0) break;
+
+      const sliceCanvas = document.createElement('canvas');
+      sliceCanvas.width = canvas.width;
+      sliceCanvas.height = sliceHeight;
+      const ctx = sliceCanvas.getContext('2d');
+      ctx.drawImage(canvas, 0, currentY, canvas.width, sliceHeight, 0, 0, canvas.width, sliceHeight);
+
+      const sliceImg = sliceCanvas.toDataURL('image/png');
+      const sliceHeightMM = sliceHeight * mmPerPx;
+
+      if(!firstPage) pdf.addPage();
+      pdf.addImage(sliceImg, 'PNG', 0, 0, pageWidthMM, sliceHeightMM);
+      firstPage = false;
+
+      currentY += sliceHeight;
     }
 
     const nombre = (el('f-nombre').value || 'hoja-de-vida').trim().replace(/\s+/g, '-').toLowerCase();
